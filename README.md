@@ -1,4 +1,4 @@
-# Modeling Neutronic Transient with Guassian processes
+# Modeling Neutronic Transient with Guassian Processes
 
 A linear reduced order model based on Guassian process is developed to approximate the response of neutronic transient experiments
 
