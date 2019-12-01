@@ -29,11 +29,12 @@ Department of Mechanical \& Nuclear Engineering, Kansas State University, Manhat
 \section{Abstract}
 Simplified models that approximate the outputs of high fidelity models are needed to overcome the 
 problem of the high computational cost associated with such models.\\
-Moreover, these models suffer from what so called the curse of dimensionality. Hence, reduction techniques 
+Moreover, these high fidelity models suffer from what so called the curse of dimensionality. Hence, reduction techniques 
 are often applied in these approximate models.\\
 In this study, a linear model has been developed to approximate the response of a numerical experiment. The experiment represents a neutronic transient in a reactor core in which the response has both spatial and temporal dependence. 
-A reduction has been done in the spatial domain and the flux is decomposed into spatial modes each weighted by a temporal coefficient, while Gaussian processes (GP) was used to build a linear model to approximates these coefficients.\\
-With proper choice of the correlation function, results show that the model was able to recover the response  with an average error of order $10^{-11}$ .
+A reduction has been done in the spatial domain and the flux is decomposed into spatial modes each weighted by a temporal coefficient, while Gaussian processes (GP) was used to build a linear model to approximate these coefficients.\\
+With proper choice of the correlation function, preliminary results show that the model was able to recover the response  with an average error in order of $10^{-11}$.\\
+The method needs to be studied more on larger scale problems and this will be the focus of a future work.
 
 \section{Introduction}
 High-fidelity models are of large use in different research areas in nuclear engineering. However, because they perform a very detailed simulation of the underlying physics, they are computationally demanding.
@@ -44,8 +45,8 @@ However, there always exist a spatial/temporal correlation between the model inp
 Such correlation can be exploited to build these approximate models in terms of lower number of dimensions which are called reduced order models (ROM). 
 This idea of reducing the input/output dimensionality is closely related to that of the variables transformation.
 
-Reduced order models can be classified as intrusive and non-intrusive methods. Intrusive method include projection methods which requires access to the source code and modifying the underlining equations, non-intrusive method are purely data-driven.\\
-In this study, a linear reduced order model has been developed to a approximate the output of a numerical experiment. This experiment represents a class of problems of interest in the nuclear field, namely, reactor transients. 
+Reduced order models can be classified as intrusive and non-intrusive methods. Intrusive method include projection methods which requires access to the source code and modifying the underlining equations, while non-intrusive methods are purely data-driven.\\
+In this study, a linear reduced order model has been developed to approximate the output of a numerical experiment. This experiment represents a class of problems of interest in the nuclear field, namely, reactor transients. 
 The Final goal is to use this model to propagate input uncertainties and compute the uncertainties in some responses of interest.
 The response of interest is the neutron population (i.e neutron flux) in the reactor which exhibits a non-linear behavior in both space and time as a result of control rod movements inside the reactor core. The spatial averaged flux is shown in fig.\ref{fig:neutron flux}.\\
 \begin{figure}
@@ -65,7 +66,7 @@ Then a linear model is built for the expansion coefficients of these basis as a 
 \subsection{Reduction}
 One of the most common ways to explore the potential of data for reduction is the proper orthogonal decomposition (POD), also known as principal component analysis (PCA).
 The basic idea of the PCA is to transform the correlated input/output variables so that they can be explained in terms of uncorrelated lower number of dimensions, which is performed by diagonalizing the data correlation matrix.\\
-Mathematically, this can be done using the singular value decomposition (SVD). Consider a data matrix $\textbf{Y} \in \mathcal{R}^{m\times n}$,  where $m$ is the number of spatial dimensions and $n$ is the number of data snapshots at different times. The SVD of $\textbf{Y}$ is computed as follows, 
+Mathematically, this can be done using the singular value decomposition (SVD). Consider a data matrix $\textbf{Y} \in \mathbb{R}^{m\times n}$,  where $m$ is the number of spatial dimensions and $n$ is the number of data snapshots at different times. The SVD of $\textbf{Y}$ is computed as follows, 
 \begin{equation}
  \textbf{Y} =\textbf{U}\boldsymbol{\Sigma}\textbf{V}^T;
 \end{equation}
@@ -86,10 +87,10 @@ Figure \ref{fig:svd} shows the normalized singular values, which strongly sugges
 A widely used method to approximate a high dimensional spatio-temporal data, in engineering applications, is the POD-Garlekin projection, in which the quantity of interest can be approximated as; 
 
 \begin{equation}
-\textbf{y} = \bar{\textbf{y}}(x) + \sum_{i=1}^r \textbf{u}_i a_i(t)
+\textbf{y} = \bar{\textbf{y}}(x) + \sum_{i=1}^r \textbf{u}_i a_i(t);
 \label{pod-galerkin}
 \end{equation}
-where $\bar{\textbf{y}}$ is the mean of response, and the other term represents the fluctuation of the data around the mean, which is a linear combination of the dominant POD modes or the principal components, assembled in $\textbf{U}_r$, each weighted by a temporal coefficient.
+where $\bar{\textbf{y}}$ is the mean of the response, and the other term represents the fluctuation of the data around the mean, which is a linear combination of the dominant POD modes or the principal components, assembled in $\textbf{U}_r$, each weighted by a temporal coefficient.
 Now, the problem remains in finding the coefficients $\textbf{a}(t)$.
 In POD-Galerkin projection, this is achieved by projecting the physical system, which is represented by a system of coupled PDEs, onto the space of $\textbf{U}_r$, thus reducing it from $n$ to $r$ equations.
 However, this requires knowledge of these equation and modifying the source code.
@@ -100,7 +101,7 @@ Hence, in this work, a statistical linear model is proposed to approximate these
 	\caption{The temporal coefficients a(t)}
 	\label{fig:coeffs}
 \end{figure}
-Once these coefficients are computed, the responses can be transformed back to its original space, i.e $\textbf{Y} = \textbf{U}^T \textbf{a}$.
+Once these coefficients are computed, the responses can be transformed back to its original space, i.e $\textbf{Y} = \textbf{U} \textbf{a}$.
 \subsection{The linear Model}
 The temporal coefficients $\textbf{a}(t)$ can be approximated by a general linear model with the following form,  
     \begin{equation}
@@ -112,12 +113,12 @@ Another way to look at the model, is that it is the projection of equation \ref{
 Such models are known as Guassian processes \cite{rasmussen2003gaussian} and they involve the choice of a trend function which represents the mean of the predicted value, and also a correlation function. 
 Different options can be used for the correlation function. The most commonly used one is the exponential square, also known as the radial basis function (RBF), and it has the following form,
  \begin{equation}
-  K(x_i, x_j) =  exp(-\frac{(x_i - x_j)^2}{2l^2})
+  k(x_i, x_j) =  exp(-\frac{(x_i - x_j)^2}{2l^2})
 \end{equation}
 where $l > 0$ is hyper-parameter. The model parameters can be estimated by a Bayesian technique, or by maximizing the likelihood function.
 
 \section{Results}
-The method presented in the previous section was used to recover the time dependent flux $\textbf{Y} \in \mathcal{R}^{700\times 621}$. The scikit-learn library in python\cite{scikit-learn} was used to develop the model, since it supports different correlation functions.
+The method presented in the previous section was used to recover the time dependent flux $\textbf{Y} \in \mathbb{R}^{700\times 621}$. The scikit-learn library in python\cite{scikit-learn} was used to develop the model, since it supports different correlation functions.
 Based on the singular values shown in figure \ref{fig:svd}, only 20 principal components or POD modes were kept which is a meaningful reduction. Thus, a Gaussian process model with 20 outputs was built. Note that without this transformation, the output space size would be 700.\\
 A fitted model with a constant trend function is developed. Different correlation functions are tried to   select a model with a correlation function that gives the best error in the recovered data. \\
 The mean and the variance of the predicted flux were computed following algorithm 2-1 in \cite{rasmussen2003gaussian}. The hyperparameters of the covariance function are optimized during fitting by maximizing the log-marginal-likelihood (LML).
@@ -140,7 +141,7 @@ However, the constant and the Exp-Sine-Squared models did not perform well, whic
 Furthermore, the Exp-sind-squared functions are best fit for periodic functions which is also not the case here.
 
 As compared to the previously developed surrogate models for the same problem, this surrogate gives better error. So it might be useful to investigate the method more on different case studies for the same class of problems. 
-Another case study for more complicated problem is given in  along with a tutorial of this work and materials required to reproduce these results \cite{RababGit}.
+Another case study for more complicated problem is given in  along with a tutorial of this work and the materials required to reproduce these results \cite{RababGit}.
 
 As mentioned before, the final goal of this surrogate is to be used to propagate uncertainties through. Hence, a future work will involve using this model to compute the distribution of the response of interest given a known distribution of some physical input parameters, in which case Bayesian technique could be more suitable, related work has been done in \cite{assessing} .
 
